@@ -1,0 +1,57 @@
+version: '3.4'
+name: development-compose
+services:
+  postgres:
+    hostname: postgres
+    container_name: posgreSQLDB
+    image: postgres:latest
+    pull_policy: if_not_present
+    environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        PGDATA: /var/lib/postgresql/data
+        # POSTGRES_DB: nodejstestdb
+    volumes:
+        - d:\DockerVolumes\DevelopmentNodeJs\PostgreSql:/var/lib/postgresql/data
+    ports:
+        - "5432:5432"
+    networks:
+      docker-network:
+        ipv4_address: 10.5.0.2
+  redis:
+    container_name: redis
+    image: redis:6.2.5
+    pull_policy: if_not_present
+    command: redis-server --requirepass 123123123
+    volumes:
+        - d:\DockerVolumes\Development\RedisCahce:/data
+    ports:
+      - 6379:6379
+    networks:
+      docker-network:
+        ipv4_address: 10.5.0.3
+  redis-commander:
+    container_name: rediscommander
+    image: rediscommander/redis-commander:latest
+    pull_policy: if_not_present
+    restart: always
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 123123123
+      HTTP_USER: admin
+      HTTP_PASSWORD: admin
+    ports:
+      - 8081:8081
+    networks:
+      docker-network:
+        ipv4_address: 10.5.0.4
+    links:
+      - redis 
+networks:
+  docker-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
